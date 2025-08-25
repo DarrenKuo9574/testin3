@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>🏅暢快運動｜四年級語文闖關（填充式詩句）</title>
+
+<!-- Bootstrap Icons 只為了小圖示與視覺點綴 -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+<style>
+/* =========================================================
+   A. 全域與RWD設定（符合需求 6：避免輸入超出容器）
+   ※ 請優先使用 Microsoft JhengHei 字體
+========================================================= */
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body{
+  font-family: "Microsoft JhengHei", system-ui, -apple-system, Arial, sans-serif;
+  background: radial-gradient(1200px 600px at 20% -10%, #eafff2 0%, #d6fff4 35%, #ccf2ff 65%, #f0fff8 100%);
+  color: #245953; margin:0;
+}
+input, select, textarea { max-width: 100%; }
+
+/* 容器與卡片（活潑、暖色偏清新運動風） */
+.container{ max-width: 980px; margin: 0 auto; padding: 16px; }
+.card{
+  background:#fff; border:3px solid #b8f0d2; border-radius:22px;
+  box-shadow:0 14px 30px rgba(88,198,139,.25); padding:20px; margin:18px 0;
+}
+h1,h2,h3{ margin:.2em 0 .6em; line-height:1.2; }
+h1{ font-size:clamp(28px,4.5vw,44px); color:#16a085; }
+h2{ font-size:clamp(22px,3.4vw,32px); color:#0f8c78; }
+h3{ font-size:clamp(18px,2.6vw,24px); color:#0c6a5b; }
+
+.badge{
+  display:inline-flex; align-items:center; gap:6px;
+  font-weight:700; padding:8px 12px; border-radius:999px;
+  background:#d7fff1; border:2px dashed #83e6c0; color:#0f8c78;
+}
+
+/* 主要按鈕（可愛有彈性） */
+.btn{
+  appearance:none; border:none; cursor:pointer; user-select:none;
+  padding:12px 18px; border-radius:16px; font-weight:800; letter-spacing:.5px;
+  background: linear-gradient(180deg, #28d9a6, #20c997);
+  color:#fff; box-shadow:0 12px 0 #189e76, 0 20px 24px rgba(32,201,151,.35);
+  transform:translateY(0); transition: transform .08s ease, box-shadow .08s ease;
+}
+.btn:hover{ transform:translateY(-2px); box-shadow:0 14px 0 #189e76, 0 26px 28px rgba(32,201,151,.4); }
+.btn:active{ transform:translateY(6px); box-shadow:0 6px 0 #189e76, 0 12px 18px rgba(32,201,151,.25); }
+.btn.secondary{
+  background:linear-gradient(180deg, #74d6ff, #4bc9ff);
+  box-shadow:0 12px 0 #2aa3d1, 0 20px 24px rgba(75,201,255,.35);
+}
+
+/* 表單區（開場蒐集班級／座號／姓名） */
+.form-grid{ display:grid; gap:12px; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); }
+.input{ display:flex; flex-direction:column; gap:6px; }
+.input label{ font-weight:700; font-size:14px; color:#0f8c78; }
+.input input, .input select{
+  padding:12px 14px; border-radius:12px; border:2px solid #a7eed2; background:#fff; font-size:16px;
+}
+
+/* 進度條與得分 */
+.progress{ width:100%; height:20px; border-radius:999px; background:#e9fff6; overflow:hidden; border:2px solid #a7eed2;}
+.progress>div{ height:100%; width:0%; background: linear-gradient(90deg, #28d9a6, #4bc9ff); transition:width .4s ease; }
+.scorebar{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.score{ font-size:20px; font-weight:900; color:#0f8c78; background:#fff; border:2px solid #a7eed2; border-radius:12px; padding:8px 12px; }
+
+/* 夥伴群像 */
+.partners{ display:grid; grid-template-columns: repeat(3,1fr); gap:12px; }
+.partner{ background:#edfff9; border:2px solid #b8f0d2; border-radius:18px; padding:10px; text-align:center; }
+.partner .avatar{ font-size:48px; }
+.partner .name{ font-weight:800; color:#0f8c78; }
+
+/* 關卡元件通用提示 */
+.msg{ padding:10px 12px; border-radius:12px; font-weight:700; }
+.msg.ok{ background:#e6ffed; color:#0e7a2e; border:2px solid #68d38b; }
+.msg.err{ background:#ffe7e6; color:#a72323; border:2px solid #ffa8a3; }
+
+/* 關卡一：拖放配對 */
+.word-bank, .def-bank{ display:grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap:10px; }
+.token{
+  background:#d7fff1; border:2px solid #a7eed2; padding:10px; border-radius:14px; font-weight:800; text-align:center; cursor:grab; user-select:none;
+}
+.dropzone{ background:#fff; border:2px dashed #a7eed2; padding:12px; border-radius:14px; min-height:56px; }
+.dropzone.filled{ border-style:solid; background:#f5fffb; }
+
+/* 關卡二：動感句 */
+.sen{ background:#f0fffb; border:2px solid #b8f0d2; border-radius:14px; padding:12px; margin-bottom:10px; }
+.sen select, .sen input{ width:100%; padding:10px; border-radius:12px; border:2px solid #a7eed2; }
+
+/* 關卡三（新版）：填充式小詩 */
+.fill-card{ background:#f6fffd; border:2px solid #b8f0d2; border-radius:16px; padding:12px; }
+.blank{
+  min-width:120px; display:inline-block; padding:6px 10px; margin:0 4px 6px;
+  border:2px dashed #90e9cc; border-radius:10px; background:#fff;
+}
+.fill-input{
+  width:min(240px,100%); padding:10px 12px; border-radius:12px; border:2px solid #a7eed2; font-weight:800; text-align:center;
+}
+.wordbank{ display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+.wordchip{
+  padding:8px 12px; border-radius:999px; background:#d7fff1; border:2px solid #a7eed2; font-weight:800; cursor:pointer; user-select:none;
+}
+.preview-poem{
+  white-space: pre-line; font-weight:800; color:#0c6a5b; background:#ffffff; border:2px solid #a7eed2; border-radius:12px; padding:10px;
+}
+
+/* 輸入狀態 */
+.is-correct{ border-color:#6bd48d !important; background:#effff4 !important; }
+.is-wrong{ border-color:#ff9ea1 !important; background:#fff2f2 !important; }
+
+/* 抽獎區 */
+.lottery{ display:none; text-align:center; background:#f0fff8; border:3px solid #b8f0d2; border-radius:22px; padding:16px; }
+.ticket{ font-size:40px; }
+
+/* 小螢幕微調 */
+@media (max-width: 560px){ .partners{ grid-template-columns:1fr; } }
+
+/* =========================================================
+   B. 迷你 Bootswatch 主題：Minty（精簡）
+   - 依需求(5)(11)，整合自 bootswatch 的 Minty 色系規則（壓縮取核心）
+========================================================= */
+:root{
+  --bs-primary:#78c2ad; --bs-secondary:#f3969a; --bs-success:#56cc9d;
+  --bs-warning:#ffce67; --bs-info:#6cc3d5; --bs-danger:#ff7851;
+  --bs-body-color:#2b3e50; --bs-body-bg:#fff;
+}
+button,.btn{ font-family:"Microsoft JhengHei",Arial,sans-serif; }
+.btn:focus{ outline:3px solid rgba(108,195,213,.35); outline-offset:2px; }
+input:focus, select:focus, textarea:focus{ outline:3px solid rgba(120,194,173,.25); }
+
+/* =========================================================
+   C. 彩帶特效（完成/中獎）
+========================================================= */
+.confetti{ position:fixed; left:0; top:0; width:100%; height:100%; pointer-events:none; overflow:hidden; }
+.confetti i{ position:absolute; top:-10px; font-style:normal; animation: fall linear forwards; }
+@keyframes fall{ to{ transform: translateY(110vh) rotate(720deg); opacity:.9; } }
+</style>
+</head>
+
+<body>
+<div class="container">
+  <!-- 頁首：標題 + 進度 + 分數 -->
+  <div class="card">
+    <h1><i class="bi bi-lightning-charge-fill"></i> 暢快運動｜語文闖關 <span class="badge">四上國語 第一課 <i class="bi bi-bookmark-heart"></i></span> 🛼</h1>
+    <div class="scorebar">
+      <div class="score" id="score">分數：0</div>
+      <div class="score">進度：<span id="progressText">0 / 3</span> 關</div>
+      <div class="progress" style="flex:1; min-width:200px"><div id="progressBar"></div></div>
+    </div>
+  </div>
+
+  <!-- 夥伴介紹 -->
+  <div class="card">
+    <h2><i class="bi bi-emoji-smile-fill"></i> 運動夥伴來報到！</h2>
+    <div class="partners">
+      <div class="partner"><div class="avatar">🏋️‍♂️</div><div class="name">運動教練 Coach</div><div>我會給你提示與加油打氣！</div></div>
+      <div class="partner"><div class="avatar">🏃‍♂️</div><div class="name">小男生 阿動</div><div>我最愛加速衝刺～</div></div>
+      <div class="partner"><div class="avatar">🛼🏃‍♀️</div><div class="name">小女生 小暢</div><div>跟著我一起滑行遨遊！</div></div>
+    </div>
+  </div>
+
+  <!-- 開場表單 -->
+  <div class="card" id="introCard">
+    <h2><i class="bi bi-person-vcard-fill"></i> 先填資料再開始</h2>
+    <div class="form-grid">
+      <div class="input"><label>班級</label><input id="cls" placeholder="例如：4年1班" /></div>
+      <div class="input"><label>座號</label><input id="num" type="number" min="1" placeholder="例如：12" /></div>
+      <div class="input"><label>姓名</label><input id="name" placeholder="請輸入真實姓名" /></div>
+    </div>
+    <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
+      <button class="btn" id="btnStart"><i class="bi bi-play-fill"></i> 開始闖關</button>
+      <button class="btn secondary" id="btnExport"><i class="bi bi-download"></i> 匯出作答紀錄（CSV）</button>
+    </div>
+    <div id="introMsg" class="msg" style="margin-top:10px;"></div>
+  </div>
+
+  <!-- 關卡一：詞語快快配（維持不變） -->
+  <div class="card" id="stage1" style="display:none;">
+    <h2>關卡一 <span class="badge"><i class="bi bi-joystick"></i> 詞語快快配</span> 🎯</h2>
+    <p>把下列<strong>詞語</strong>拖到正確的<strong>解釋</strong>上。包含：<b>滑行、加速、遨遊、飛鷹、緩緩</b></p>
+    <div class="word-bank" id="wordBank"></div>
+    <hr style="border:none; border-top:2px dashed #b8f0d2; margin:12px 0;">
+    <div class="def-bank" id="defBank"></div>
+    <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
+      <button class="btn" id="checkS1"><i class="bi bi-check2-square"></i> 送出關卡一</button>
+      <button class="btn secondary" id="resetS1"><i class="bi bi-arrow-clockwise"></i> 重置</button>
+    </div>
+    <div id="s1Msg" class="msg" style="margin-top:10px;"></div>
+  </div>
+
+  <!-- 關卡二：把句子寫成動感句（維持不變） -->
+  <div class="card" id="stage2" style="display:none;">
+    <h2>關卡二 <span class="badge"><i class="bi bi-magic"></i> 動感句魔法</span> 🪄</h2>
+    <p>把普通句子變得更有「動感」！請選擇更生動的詞語或狀態。</p>
+    <div class="sen">
+      1. 我在操場上（<b>跑步</b>）。<br>
+      <select id="s2a">
+        <option value="">— 選擇動感說法 —</option>
+        <option>我在操場上飛快地奔跑。</option>
+        <option>我在操場上緩緩地走路。</option>
+        <option>我在操場上停下來休息。</option>
+      </select>
+    </div>
+    <div class="sen">
+      2. 直排輪往前（<b>移動</b>）。<br>
+      <select id="s2b">
+        <option value="">— 選擇動感說法 —</option>
+        <option>直排輪呼嘯著加速滑行。</option>
+        <option>直排輪停在原地不動。</option>
+        <option>直排輪慢慢往後退。</option>
+      </select>
+    </div>
+    <div class="sen">
+      3. 我望向天空的（<b>鳥</b>）。<br>
+      <select id="s2c">
+        <option value="">— 選擇動感說法 —</option>
+        <option>我追著像飛鷹一樣的身影遨遊。</option>
+        <option>我看著一隻靜止的紙鳥。</option>
+        <option>我看著天空一片空白。</option>
+      </select>
+    </div>
+    <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
+      <button class="btn" id="checkS2"><i class="bi bi-check2-square"></i> 送出關卡二</button>
+      <button class="btn secondary" id="resetS2"><i class="bi bi-arrow-clockwise"></i> 重置</button>
+    </div>
+    <div id="s2Msg" class="msg" style="margin-top:10px;"></div>
+  </div>
+
+  <!-- 關卡三（新版）：填充式小詩仿作 -->
+  <div class="card" id="stage3" style="display:none;">
+    <h2>關卡三 <span class="badge"><i class="bi bi-chat-left-heart-fill"></i> 小詩填充工坊</span> ✍️</h2>
+    <p>從下方「字詞補給站」點一下即可填入空格（也可自行輸入）。請把 <b>6 個空格</b> 全部完成，再送出！</p>
+
+    <!-- 字詞補給站：可自由增減關鍵詞（挑戰↑） -->
+    <div class="fill-card">
+      <b>字詞補給站</b>
+      <div class="wordbank" id="wordBankFill">
+        <!-- 會由 JS 依陣列建立 -->
+      </div>
+    </div>
+
+    <!-- 句型：含 6 個空格（可輸入或點選帶入） -->
+    <div class="fill-card" style="margin-top:10px;">
+      <div style="font-weight:800; margin-bottom:6px;">我的運動小詩：</div>
+      <div style="line-height:2;">
+        我穿上直排輪，<span class="blank"><input class="fill-input" id="b1" placeholder="例：緩緩熱身"></span>。<br>
+        在操場邊緣，<span class="blank"><input class="fill-input" id="b2" placeholder="例：輕輕滑行"></span>，<span class="blank"><input class="fill-input" id="b3" placeholder="例：加速出發"></span>。<br>
+        風像<span class="blank"><input class="fill-input" id="b4" placeholder="例：飛鷹"></span>，替我領路，心往前<span class="blank"><input class="fill-input" id="b5" placeholder="例：遨遊"></span>。<br>
+        汗珠滾落，我<span class="blank"><input class="fill-input" id="b6" placeholder="例：笑著前進"></span>。
+      </div>
+    </div>
+
+    <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
+      <button class="btn" id="checkS3"><i class="bi bi-check2-square"></i> 送出關卡三</button>
+      <button class="btn secondary" id="resetS3"><i class="bi bi-arrow-clockwise"></i> 重置</button>
+    </div>
+
+    <div id="s3Msg" class="msg" style="margin-top:10px;"></div>
+
+    <div class="card" id="poemPreview" style="display:none; margin-top:16px;">
+      <h3><i class="bi bi-pencil-square"></i> 我的仿作</h3>
+      <div id="poemText" class="preview-poem"></div>
+    </div>
+  </div>
+
+  <!-- 抽獎區（完成三關後顯示） -->
+  <div class="card lottery" id="lottery">
+    <h2><i class="bi bi-gift-fill"></i> 完成三關！抽獎時間到 🎁</h2>
+    <p>每人限抽一次～祝你好手氣！</p>
+    <div class="ticket">🎟️</div>
+    <div style="margin-top:12px;"><button class="btn" id="btnDraw"><i class="bi bi-stars"></i> 抽一抽</button></div>
+    <div id="lotteryMsg" class="msg" style="margin-top:10px;"></div>
+  </div>
+
+  <!-- 教師說明 -->
+  <div class="card">
+    <h3><i class="bi bi-info-circle-fill"></i> 教師小幫手</h3>
+    <ul>
+      <li>系統以 <b>班級＋座號＋姓名</b> 識別學生，紀錄闖關結果與是否抽獎。</li>
+      <li>按「匯出作答紀錄（CSV）」可下載本機蒐集的所有紀錄。</li>
+      <li>答對/答錯與通關使用 <b>Web Audio API</b> 即時產生音效。</li>
+    </ul>
+  </div>
+</div>
+
+<!-- 彩帶特效容器 -->
+<div class="confetti" id="confetti"></div>
+
+<script>
+/* =========================================================
+   JS 程式邏輯（含註解）：
+   - A. 公用/音效/彩帶/進度條
+   - B. 開場表單 & 匯出CSV
+   - C. 關卡一（拖放配對）
+   - D. 關卡二（動感句）
+   - E. 關卡三（填充式小詩）★新版★
+   - F. 抽獎（完成三關解鎖；每人限一次；15%）
+========================================================= */
+
+/* ---------- A. 公用 ---------- */
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+
+const STATE = { user:null, score:0, done:{s1:false,s2:false,s3:false} };
+function userKey(u){ return `Y4_Skate_${u.cls}_${u.num}_${u.name}`; }
+function loadUserRecords(){ return JSON.parse(localStorage.getItem('Y4_Skate_Records') || '[]'); }
+function saveUserRecord(rec){
+  const list = loadUserRecords(); list.push(rec);
+  localStorage.setItem('Y4_Skate_Records', JSON.stringify(list));
+}
+function updateProgress(){
+  const n = Number(STATE.done.s1)+Number(STATE.done.s2)+Number(STATE.done.s3);
+  $('#progressText').textContent = `${n} / 3`;
+  $('#progressBar').style.width = `${(n/3)*100}%`;
+  $('#score').textContent = `分數：${STATE.score}`;
+  if(STATE.done.s1 && STATE.done.s2 && STATE.done.s3){ $('#lottery').style.display='block'; }
+}
+function burstConfetti(){
+  const c = $('#confetti'); const colors = ['🟡','🟢','🔵','🟣','🟠','💚','💙','💜','💛'];
+  for(let i=0;i<120;i++){
+    const piece=document.createElement('i');
+    piece.textContent=colors[Math.floor(Math.random()*colors.length)];
+    piece.style.left=(Math.random()*100)+'%';
+    piece.style.fontSize=(12+Math.random()*24)+'px';
+    piece.style.animationDuration=(2+Math.random()*2)+'s';
+    c.appendChild(piece); setTimeout(()=>piece.remove(),4000);
+  }
+}
+function playSound(type='ok'){
+  const ctx=new (window.AudioContext||window.webkitAudioContext)();
+  let seq=[];
+  if(type==='ok'){ seq=[440,554.37,659.25]; }
+  else if(type==='err'){ seq=[392,261.63]; }
+  else if(type==='win'){ seq=[523.25,659.25,783.99,1046.5]; }
+  let t=ctx.currentTime;
+  seq.forEach(f=>{
+    const o=ctx.createOscillator(), g=ctx.createGain();
+    o.type=(type==='win')?'triangle':'sine'; o.frequency.value=f;
+    g.gain.setValueAtTime(.0001,t); g.gain.linearRampToValueAtTime(.2,t+.02); g.gain.exponentialRampToValueAtTime(.0001,t+.25);
+    o.connect(g); g.connect(ctx.destination); o.start(t); o.stop(t+.27); t+=.12;
+  });
+}
+
+/* ---------- B. 開場表單 / 匯出 ---------- */
+$('#btnStart').addEventListener('click', ()=>{
+  const cls=$('#cls').value.trim(), num=$('#num').value.trim(), name=$('#name').value.trim();
+  if(!cls||!num||!name){ $('#introMsg').className='msg err'; $('#introMsg').textContent='請把「班級、座號、姓名」填完整喔！'; playSound('err'); return; }
+  STATE.user={cls,num,name}; STATE.user.key=userKey(STATE.user);
+  localStorage.setItem('Y4_Skate_CurrentUser', JSON.stringify(STATE.user));
+  $('#introMsg').className='msg ok'; $('#introMsg').textContent=`${cls} ${num}號 ${name}，準備出發！請完成所有關卡～`;
+  initStage1(); $('#stage1').style.display='block'; playSound('ok');
+});
+$('#btnExport').addEventListener('click', ()=>{
+  const data=loadUserRecords();
+  const header=['時間','班級','座號','姓名','關卡','得分','是否通過','內容'];
+  const lines=[header.join(',')];
+  data.forEach(r=> lines.push([r.time,r.cls,r.num,r.name,r.stage,r.delta,r.pass?'是':'否', JSON.stringify(r.payload||{})].join(',')));
+  const blob=new Blob([lines.join('\n')],{type:'text/csv;charset=utf-8;'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='四上_暢快運動_闖關紀錄.csv'; a.click();
+});
+
+/* ---------- C. 關卡一：拖放配對（維持） ---------- */
+const WORDS=[ {w:'滑行',d:'身體或物體貼著地面/空氣平順地前進。'}, {w:'加速',d:'速度變快。'}, {w:'遨遊',d:'自在地到處遊走。'}, {w:'飛鷹',d:'比喻敏捷、有力的飛翔身影。'}, {w:'緩緩',d:'慢慢地。'} ];
+let s1Answers={};
+function initStage1(){
+  const wb=$('#wordBank'); wb.innerHTML=''; WORDS.forEach(item=>{
+    const t=document.createElement('div'); t.className='token'; t.textContent=item.w; t.draggable=true; t.dataset.word=item.w;
+    t.addEventListener('dragstart', e=> e.dataTransfer.setData('text/plain', item.w)); wb.appendChild(t);
+  });
+  const shuffled=[...WORDS].sort(()=>Math.random()-0.5);
+  const db=$('#defBank'); db.innerHTML='';
+  shuffled.forEach((item,i)=>{
+    const z=document.createElement('div'); z.className='dropzone'; z.dataset.index=i;
+    z.innerHTML=`<b>解釋 ${i+1}</b><br>${item.d}<div class="put" style="margin-top:8px;font-weight:800;color:#0f8c78;"></div>`;
+    z.addEventListener('dragover', e=> e.preventDefault());
+    z.addEventListener('drop', e=>{ e.preventDefault(); const w=e.dataTransfer.getData('text/plain'); z.querySelector('.put').textContent=w; z.classList.add('filled'); s1Answers[i]=w; });
+    db.appendChild(z);
+  });
+  $('#s1Msg').textContent=''; s1Answers={};
+}
+$('#checkS1').addEventListener('click', ()=>{
+  const defs=Array.from($('#defBank').children).map(z=> z.innerText);
+  const bankMap=new Map(); WORDS.forEach(o=> bankMap.set(o.d,o.w));
+  let correct=0;
+  defs.forEach((txt,i)=>{
+    const d=txt.replace(/[\s\S]*解釋 \d+\s*/, '').trim();
+    const put=$('#defBank').children[i].querySelector('.put').textContent.trim();
+    const ans=bankMap.get(d);
+    if(put && ans && put===ans){ correct++; $('#defBank').children[i].classList.add('is-correct'); }
+    else{ $('#defBank').children[i].classList.add('is-wrong'); }
+  });
+  const delta=correct*10; STATE.score+=delta; STATE.done.s1=true;
+  $('#s1Msg').className='msg '+(correct===5?'ok':'err'); $('#s1Msg').textContent=`本關答對 ${correct} / 5 題，得到 ${delta} 分！`;
+  playSound(correct===5?'ok':'err'); burstConfetti(); updateProgress();
+  saveUserRecord({ time:new Date().toLocaleString(), cls:STATE.user.cls, num:STATE.user.num, name:STATE.user.name, stage:'關卡一', delta, pass:true, payload:{correct} });
+  $('#stage2').style.display='block';
+});
+$('#resetS1').addEventListener('click', initStage1);
+
+/* ---------- D. 關卡二：動感句（維持） ---------- */
+$('#checkS2').addEventListener('click', ()=>{
+  const a=$('#s2a').value, b=$('#s2b').value, c=$('#s2c').value;
+  let correct=0;
+  if(a==='我在操場上飛快地奔跑。') correct++;
+  if(b==='直排輪呼嘯著加速滑行。') correct++;
+  if(c==='我追著像飛鷹一樣的身影遨遊。') correct++;
+  const delta=correct*10; STATE.score+=delta; STATE.done.s2=true;
+  $('#s2Msg').className='msg '+(correct===3?'ok':'err'); $('#s2Msg').textContent=`本關完成！動感句正確 ${correct} / 3，得到 ${delta} 分。`;
+  playSound(correct===3?'ok':'err'); burstConfetti(); updateProgress();
+  saveUserRecord({ time:new Date().toLocaleString(), cls:STATE.user.cls, num:STATE.user.num, name:STATE.user.name, stage:'關卡二', delta, pass:true, payload:{a,b,c} });
+  $('#stage3').style.display='block';
+});
+$('#resetS2').addEventListener('click', ()=>{ $('#s2a').value=''; $('#s2b').value=''; $('#s2c').value=''; $('#s2Msg').textContent=''; });
+
+/* ---------- E. 關卡三：填充式小詩（挑戰↑） ---------- */
+/* 設計思路：
+   - 字詞補給站提供多個關鍵詞，點一下會填入「目前空白格」或追加到空白格的內容尾端。
+   - 學生也可自行輸入（提高挑戰與彈性）。
+   - 評分方式：
+     (1) 六個空格皆非空 → 基礎 10 分
+     (2) 每出現一個關鍵詞 +2 分，上限 +20
+     (3) 若至少使用 4 個不同關鍵詞 → 額外 +5 分（鼓勵多元使用）
+*/
+const KEYWORDS = ['滑行','加速','遨遊','飛鷹','緩緩','奔跑','出發','呼嘯','領路','前進','熱身','輕輕'];
+const FIELDS = ['#b1','#b2','#b3','#b4','#b5','#b6'];
+let currentFieldIndex = 0; // 追蹤目前聚焦的空格
+
+// 建立字詞補給站
+(function initWordBankFill(){
+  const box = $('#wordBankFill'); box.innerHTML='';
+  KEYWORDS.forEach(w=>{
+    const chip = document.createElement('div');
+    chip.className='wordchip';
+    chip.textContent=w;
+    chip.title='點一下填入目前空格（或追加到文字後方）';
+    chip.addEventListener('click', ()=>{
+      const el = document.querySelector(FIELDS[currentFieldIndex]) || document.querySelector(FIELDS[0]);
+      if(el){
+        el.value = el.value ? (el.value + w) : w; // 直接追加，增加趣味與挑戰
+        el.classList.remove('is-wrong'); el.classList.add('is-correct');
+        playSound('ok');
+      }
+    });
+    box.appendChild(chip);
+  });
+})();
+
+// 監聽空格的 focus，更新 currentFieldIndex
+FIELDS.forEach((sel, idx)=>{
+  document.addEventListener('focusin', (e)=>{ if(e.target && e.target.id === sel.slice(1)) currentFieldIndex = idx; });
+});
+
+// 組合詩
+function buildPoem(){
+  const v = FIELDS.map(sel=> $(sel).value.trim());
+  return `我穿上直排輪，${v[0]}。\n在操場邊緣，${v[1]}，${v[2]}。\n風像${v[3]}，替我領路，心往前${v[4]}。\n汗珠滾落，我${v[5]}。`;
+}
+
+// 檢查並計分
+$('#checkS3').addEventListener('click', ()=>{
+  const values = FIELDS.map(sel=> $(sel).value.trim());
+  // 六格皆需填寫
+  if(values.some(x=>!x)){
+    $('#s3Msg').className='msg err'; $('#s3Msg').textContent='還有空格沒填喔！請把 6 個空格都完成～'; playSound('err'); return;
+  }
+  // 計算關鍵詞命中
+  const poem = buildPoem();
+  let bonus = 0, usedSet = new Set();
+  KEYWORDS.forEach(k=>{
+    const count = (poem.match(new RegExp(k,'g'))||[]).length;
+    if(count>0){ bonus += 2; usedSet.add(k); }
+  });
+  if(bonus > 20) bonus = 20; // 上限
+  let delta = 10 + bonus;
+  if(usedSet.size >= 4) delta += 5; // 多元使用加分
+
+  STATE.score += delta; STATE.done.s3 = true;
+  $('#s3Msg').className='msg ok'; $('#s3Msg').textContent=`太棒了！完成填充式小詩，得到 ${delta} 分（含關鍵詞加分 ${bonus} 分， 多元加分 ${usedSet.size>=4?5:0} 分）。`;
+  $('#poemText').textContent = poem; $('#poemPreview').style.display='block';
+  playSound('ok'); burstConfetti(); updateProgress();
+
+  // 標記輸入框狀態
+  FIELDS.forEach(sel=> { $(sel).classList.add('is-correct'); $(sel).classList.remove('is-wrong'); });
+
+  // 紀錄
+  saveUserRecord({ time:new Date().toLocaleString(), cls:STATE.user.cls, num:STATE.user.num, name:STATE.user.name, stage:'關卡三', delta, pass:true, payload:{ poem, used:Array.from(usedSet) }});
+});
+
+// 重置
+$('#resetS3').addEventListener('click', ()=>{
+  FIELDS.forEach(sel=>{ $(sel).value=''; $(sel).classList.remove('is-correct','is-wrong'); });
+  $('#s3Msg').textContent=''; $('#poemPreview').style.display='none'; currentFieldIndex=0;
+});
+
+/* ---------- F. 抽獎 ---------- */
+function hasDrawn(u){ return localStorage.getItem(`${u.key}_drawn`) === '1'; }
+function setDrawn(u){ localStorage.setItem(`${u.key}_drawn`, '1'); }
+$('#btnDraw').addEventListener('click', ()=>{
+  if(!STATE.user){ $('#lotteryMsg').className='msg err'; $('#lotteryMsg').textContent='請先填資料並完成闖關喔！'; return; }
+  if(!(STATE.done.s1 && STATE.done.s2 && STATE.done.s3)){ $('#lotteryMsg').className='msg err'; $('#lotteryMsg').textContent='還沒完成三關～加油！'; return; }
+  if(hasDrawn(STATE.user)){ $('#lotteryMsg').className='msg err'; $('#lotteryMsg').textContent='每人限抽一次，已使用過囉！'; playSound('err'); return; }
+  const win = Math.random() < 0.15; setDrawn(STATE.user);
+  if(win){
+    $('#lotteryMsg').className='msg ok'; $('#lotteryMsg').innerHTML='🎉 恭喜中獎！獲得 <b>金色獎章</b> 與小禮物（由老師發放）～';
+    playSound('win'); burstConfetti();
+    saveUserRecord({ time:new Date().toLocaleString(), cls:STATE.user.cls, num:STATE.user.num, name:STATE.user.name, stage:'抽獎', delta:0, pass:true, payload:{result:'win'}});
+  }else{
+    $('#lotteryMsg').className='msg err'; $('#lotteryMsg').textContent='差一點點～下次再來挑戰！';
+    playSound('err');
+    saveUserRecord({ time:new Date().toLocaleString(), cls:STATE.user.cls, num:STATE.user.num, name:STATE.user.name, stage:'抽獎', delta:0, pass:false, payload:{result:'lose'}});
+  }
+});
+
+/* ---------- G. 回填使用者（重新整理保留） ---------- */
+(function restoreUser(){
+  try{
+    const u = JSON.parse(localStorage.getItem('Y4_Skate_CurrentUser')||'null');
+    if(u){ $('#cls').value=u.cls; $('#num').value=u.num; $('#name').value=u.name; STATE.user=u; }
+  }catch(e){}
+})();
+</script>
+</body>
+</html>
